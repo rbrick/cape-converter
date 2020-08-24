@@ -145,16 +145,24 @@ func scaleImage(path string, info os.FileInfo, old bool, progressChan chan int) 
 
 	newImg := image.NewRGBA(image.Rect(0, 0, fixedWidth, fixedHeight))
 
-	for i := 0; i < max(scaleY/scaledY, 1); i++ {
-		for y := 0; y < fixedHeight/(max(scaleY/scaledY, 1)); y++ {
-			for x := 0; x < fixedWidth; x++ {
-				if scaleX != scaleY {
-					newImg.Set(x, y+(i*fixedHeight/(max(scaleY/scaledY, 1))), img.At(x, y+(i*(bounds.Dy()/max(scaleY/scaledY, 1)))))
-				} else {
-					newImg.Set(x, y*(i+1), img.At(x, y*(i+1)))
-				}
+	needsScaling := fixedWidth/22 > 1 && fixedHeight/17 > 1
 
+	if needsScaling {
+		for i := 0; i < max(scaleY/scaledY, 1); i++ {
+			for y := 0; y < fixedHeight/(max(scaleY/scaledY, 1)); y++ {
+				for x := 0; x < fixedWidth; x++ {
+					if scaleX != scaleY {
+						newImg.Set(x, y+(i*fixedHeight/(max(scaleY/scaledY, 1))), img.At(x, y+(i*(bounds.Dy()/max(scaleY/scaledY, 1)))))
+					} else {
+						newImg.Set(x, y*(i+1), img.At(x, y*(i+1)))
+					}
+
+				}
 			}
+		}
+	} else {
+		for i := 0; i < fixedHeight/17; i++ {
+			draw.Draw(newImg, image.Rect(0, i*17, 22, (i+1)*17), img, image.Pt(0, i*32), draw.Src)
 		}
 	}
 
